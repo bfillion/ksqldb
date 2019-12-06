@@ -1,0 +1,3 @@
+{
+    "ksql": "SELECT * FROM riderLocations WHERE GEO_DISTANCE(latitude, longitude, 37.4133, -122.1162) <= 5 EMIT CHANGES;"
+  }
