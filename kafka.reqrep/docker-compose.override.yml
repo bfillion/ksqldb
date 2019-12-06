@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  kafka.reqrep:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"

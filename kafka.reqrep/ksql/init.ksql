@@ -1,0 +1,16 @@
+CREATE STREAM reponse (idCorrelation VARCHAR, reponse VARCHAR)
+    WITH (kafka_topic = 'reponse_req',
+          partitions = 3,
+          key = 'idCorrelation',
+          value_format = 'avro');
+
+CREATE STREAM reponse_strm AS
+    SELECT idCorrelation, reponse
+    FROM reponse
+    EMIT CHANGES;
+
+CREATE TABLE reponses_heure AS
+  SELECT idCorrelation, reponse
+  FROM REPONSE_STRM
+  WINDOW TUMBLING (SIZE 1 HOUR)
+  EMIT CHANGES;

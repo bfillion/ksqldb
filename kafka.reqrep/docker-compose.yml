@@ -1,6 +1,12 @@
-version: '3'
+version: '3.4'
 
 services:
+  kafka.reqrep:
+    image: ${DOCKER_REGISTRY-}kafkareqrep
+    build:
+      context: .
+      dockerfile: kafka.reqrep/Dockerfile
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.3.1
     hostname: zookeeper
@@ -26,7 +32,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
- 
+
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
     depends_on:
@@ -60,6 +66,5 @@ services:
     depends_on:
       - broker
       - ksqldb-server
-      - schema-registry
     entrypoint: /bin/sh
     tty: true
