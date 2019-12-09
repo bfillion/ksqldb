@@ -41,7 +41,7 @@ CREATE TABLE reponses_heure5 AS
 
 CREATE TABLE reponses_heure6 AS
   SELECT * FROM reponse_strm
-  WHERE gender='fct1'
+  WHERE fonction='fct1'
   EMIT CHANGES;
 
 INSERT INTO reponse (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
