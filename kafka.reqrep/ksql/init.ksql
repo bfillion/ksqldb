@@ -1,16 +1,50 @@
-CREATE STREAM reponse (idCorrelation VARCHAR, reponse VARCHAR)
-    WITH (kafka_topic = 'reponse_req',
-          partitions = 3,
+CREATE STREAM reponse (idCorrelation VARCHAR, reponse VARCHAR, fonction VARCHAR)
+    WITH (kafka_topic = 'reponse',
+          partitions = 5,
           key = 'idCorrelation',
           value_format = 'avro');
 
 CREATE STREAM reponse_strm AS
-    SELECT idCorrelation, reponse
+    SELECT *
     FROM reponse
+    PARTITION BY idCorrelation
     EMIT CHANGES;
 
 CREATE TABLE reponses_heure AS
-  SELECT idCorrelation, reponse
-  FROM REPONSE_STRM
-  WINDOW TUMBLING (SIZE 1 HOUR)
+  SELECT idCorrelation, 
+  count(*) as nombre
+  FROM reponse_strm
+  GROUP BY idCorrelation
   EMIT CHANGES;
+
+CREATE TABLE reponses_heure2 AS
+  SELECT reponse, idCorrelation, COUNT(*)
+  FROM reponse_strm
+  WINDOW TUMBLING (SIZE 1 HOUR)
+  GROUP BY reponse, idCorrelation EMIT CHANGES;
+
+CREATE TABLE reponses_heure3 AS
+  SELECT idCorrelation, COUNT(*)
+  FROM reponse_strm
+  WINDOW TUMBLING (SIZE 1 HOUR)
+  GROUP BY idCorrelation EMIT CHANGES;
+
+CREATE TABLE reponses_heure4 AS
+  SELECT idCorrelation, COUNT(*)
+  FROM reponse_strm
+  GROUP BY idCorrelation EMIT CHANGES;
+
+CREATE TABLE reponses_heure5 AS
+  SELECT idCorrelation, reponse, COUNT(*)
+  FROM reponse_strm
+  GROUP BY idCorrelation, reponse EMIT CHANGES;
+
+CREATE TABLE reponses_heure6 AS
+  SELECT * FROM reponse_strm
+  WHERE gender='fct1'
+  EMIT CHANGES;
+
+INSERT INTO reponse (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
+
+SELECT * FROM reponses_heure
+  WHERE KSQL_COL_1 = '1';
