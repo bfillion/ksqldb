@@ -25,7 +25,7 @@ namespace kafka.reqrep.Controllers
         [HttpGet("{id}")]
         public async Task<string> GetAsync(int id)
         {
-            string ksql = "{\"ksql\": \"select * from REPONSES_FCT1 where idCorrelation='3' EMIT CHANGES;\"}";
+            string ksql = "{\"ksql\": \"select idCorrelation, reponse from REPONSES_FCT1 where idCorrelation='3' EMIT CHANGES;\"}";
 
             HttpContent c = new StringContent(ksql, Encoding.UTF8, "application/vnd.ksql.v1+json");
 
@@ -43,17 +43,32 @@ namespace kafka.reqrep.Controllers
             using (var response = await client.SendAsync(
                 request,
                 HttpCompletionOption.ResponseHeadersRead))
-                    {
-                        using (var body = await response.Content.ReadAsStreamAsync())
-                        using (var reader = new StreamReader(body))
-                            while (!reader.EndOfStream)
-                        retour += reader.ReadLine();
-                    }
+                {
+                    using (var body = await response.Content.ReadAsStreamAsync())
+                    using (var reader = new StreamReader(body))
+                        while (!reader.EndOfStream)
+                    retour = reader.ReadLine();
+
+                    
+                }
 
             //var responseStream = await response.Content.ReadAsStreamAsync();
             //return await JsonSerializer.DeserializeAsync
             //<string>(responseStream);
             return "2";
         }
+    }
+
+
+    public class Retour
+    {
+        //[JsonProperty("row")]
+        public Row Row { get; set; }
+    }
+
+    public class Row
+    {
+        //[JsonProperty("columns")]
+        public string[] Columns { get; set; }
     }
 }
