@@ -1,46 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace kafka.reqrep.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiController]
+    [Route("[controller]")]
     public class RequetesController : Controller
     {
-        // GET: api/values
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IHttpClientFactory _clientFactory;
+
+        public RequetesController(IHttpClientFactory clientFactory)
         {
-            return new string[] { "value1", "value2" };
+            _clientFactory = clientFactory;
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<string> GetAsync(int id)
         {
-            return "value";
-        }
+            string ksql = "{\"ksql\": \"select * from REPONSES_FCT1 where idCorrelation='3' EMIT CHANGES;\"}";
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
+            HttpContent c = new StringContent(ksql, Encoding.UTF8, "application/vnd.ksql.v1+json");
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
+            var request = new HttpRequestMessage(HttpMethod.Post,
+            "query");
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            request.Content = c;
+
+            var client = _clientFactory.CreateClient("ksqldb");
+
+            //var response = await client.SendAsync(request);
+
+            string retour = "";
+
+            using (var response = await client.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead))
+                    {
+                        using (var body = await response.Content.ReadAsStreamAsync())
+                        using (var reader = new StreamReader(body))
+                            while (!reader.EndOfStream)
+                        retour += reader.ReadLine();
+                    }
+
+            //var responseStream = await response.Content.ReadAsStreamAsync();
+            //return await JsonSerializer.DeserializeAsync
+            //<string>(responseStream);
+            return "2";
         }
     }
 }

@@ -4,8 +4,19 @@ CREATE STREAM reponse (idCorrelation VARCHAR, reponse VARCHAR, fonction VARCHAR)
           key = 'idCorrelation',
           value_format = 'avro');
 
+CREATE TABLE reponses
+  (idCorrelation VARCHAR,
+   reponse VARCHAR,
+   fonction VARCHAR)
+  WITH (KAFKA_TOPIC = 'reponses',
+        PARTITIONS = 5,
+        VALUE_FORMAT='avro',
+        KEY = 'idCorrelation');
+
+SELECT * FROM reponses EMIT CHANGES;
+
 CREATE STREAM reponse_strm AS
-    SELECT *
+    SELECT idCorrelation, reponse, fonction
     FROM reponse
     PARTITION BY idCorrelation
     EMIT CHANGES;
@@ -39,12 +50,12 @@ CREATE TABLE reponses_heure5 AS
   FROM reponse_strm
   GROUP BY idCorrelation, reponse EMIT CHANGES;
 
-CREATE TABLE reponses_heure6 AS
-  SELECT * FROM reponse_strm
+CREATE TABLE reponses_fct1 AS
+  SELECT * FROM reponses
   WHERE fonction='fct1'
   EMIT CHANGES;
 
-INSERT INTO reponse (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
+INSERT INTO reponses (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
 
 SELECT * FROM reponses_heure
   WHERE KSQL_COL_1 = '1';

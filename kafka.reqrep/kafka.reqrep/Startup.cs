@@ -25,6 +25,15 @@ namespace kafka.reqrep
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddHttpClient("ksqldb", c =>
+            {
+                c.BaseAddress = new Uri("http://localhost:8088/");
+                
+                c.DefaultRequestHeaders.Add("Accept", "application/vnd.ksql.v1+json");
+                
+                //c.DefaultRequestHeaders.Add("Content-Type", "application/vnd.ksql.v1+json");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
