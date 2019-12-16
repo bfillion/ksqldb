@@ -55,7 +55,7 @@ CREATE TABLE reponses_fct1 AS
   WHERE fonction='fct1'
   EMIT CHANGES;
 
-INSERT INTO reponses (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
+INSERT INTO reponse (idCorrelation, reponse, fonction) VALUES ('1', 'coco', 'fct1');
 
 SELECT * FROM reponses_heure
   WHERE KSQL_COL_1 = '1';
